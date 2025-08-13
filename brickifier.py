@@ -3,10 +3,17 @@
 from dataclasses import dataclass
 import typing as ty
 
+from utils import assert_round
+
 @dataclass
 class Brick:
-    left_x: float
-    right_x: float
+    relative_left_x: float
+    relative_right_x: float
+    # could argue these should be float, but for real quarter/header/stretcher widths in mm for this
+    # problem, they'll always be integral.
+    real_left_x: int
+    real_right_x: int
+    y: int # course, 0 being the bottom course
     is_placed: bool = False
 
 _HEAD_JOINT_WIDTH = 1.0/21.0
@@ -24,43 +31,22 @@ def head_joints_to_bricks(joints: list[list[float]], width: float) -> list[list[
     return [_single_row_joints_to_bricks(row_joints, width) for row_joints in joints]
 
 # time to overengineer the brick printing mechanism
-_FULL_CHAR = '█'
-_FIRST_HALF_CHAR = '▌'
-_LAST_HALF_CHAR = '▐'
-_CHARS_PER_WIDTH = 10.5
+_PLACED_CHAR: ty.Final = '█'
+_UNPLACED_CHAR: ty.Final = '▒'
+_HEAD_JOINT_CHAR: ty.Final = ' '
+_STRETCHER_PLUS_TRAILING_HEAD_JOINT_LENGTH_CHARS: ty.Final = 8
+_HEAD_JOINT_LENGTH_CHARS: ty.Final = 1
 
-def print_bricks(bricks: list[list[Brick]]) -> None:
-    for brick_row in reversed(bricks):
+def print_bricks(head_joints: list[list[float]], length: float) -> None:
+    for head_joint_row in reversed(head_joints):
         row = ''
-        current_char = 0
-        for brick in brick_row:
-            left_char = brick.left_x * _CHARS_PER_WIDTH
-            right_char = brick.right_x * _CHARS_PER_WIDTH
-
-            # handle the first char
-            distance_to_left_char = left_char - current_char
-            if abs(distance_to_left_char) < 0.0001:
-                # brick starts immediately: No special behavior
-                pass
-            elif abs(distance_to_left_char - 0.5) < 0.0001:
-                # brick starts half a block later: Print half char
-                row += _LAST_HALF_CHAR
-                current_char += 1
-            else:
-                raise RuntimeError('Illegal distance to left char!')
-
-            num_full_chars = int(right_char - current_char)
-            row += _FULL_CHAR * num_full_chars
-            current_char += num_full_chars
-
-            remaining_brick_chars = right_char - current_char
-            if abs(remaining_brick_chars) < 0.0001:
-                # brick is done, and so are we
-                pass
-            elif abs(remaining_brick_chars - 0.5) < 0.0001:
-                # half a brick left
-                row += _FIRST_HALF_CHAR
-                current_char += 1
-            else:
-                raise RuntimeError(f'Wrong fraction of brick left at the end: {remaining_brick_chars}')
+        prev_head_joint = 0.0
+        for head_joint in head_joint_row + [length]:
+            # sorry for the name
+            brick_plus_trailing_head_joint_length_chars = assert_round((head_joint - prev_head_joint) * _STRETCHER_PLUS_TRAILING_HEAD_JOINT_LENGTH_CHARS)
+            brick_length_chars = brick_plus_trailing_head_joint_length_chars - _HEAD_JOINT_LENGTH_CHARS
+            row += _PLACED_CHAR * brick_length_chars
+            row += _HEAD_JOINT_CHAR * _HEAD_JOINT_LENGTH_CHARS
+            prev_head_joint = head_joint
         print(row)
+        print()
