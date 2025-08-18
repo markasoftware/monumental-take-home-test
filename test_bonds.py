@@ -1,6 +1,3 @@
-# just to test a few things quickly, this file not only tests the bond generation but also the
-# brickification.
-
 from bonds import stretcher_bond, flemish_bond, cross_bond
 
 def test_stretcher_bond() -> None:
