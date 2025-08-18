@@ -1,1 +1,0 @@
-next_brick_left_xnext_brick_left_x
