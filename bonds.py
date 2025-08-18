@@ -5,7 +5,9 @@
 from utils import float_eq
 
 def stretcher_bond(num_rows: int, width: float) -> list[list[float]]:
-    assert float_eq(width%0.5, 0), "proper stretcher bond needs width to be a multiple of 0.5"
+    # exact equality is more or less ok here because 0.5 can be represented exactly as a float.
+    # Similarly with 0.25 used in other bonds later
+    assert width%0.5 == 0, "proper stretcher bond needs width to be a multiple of 0.5"
 
     all_joints: list[list[float]] = []
     for row in range(num_rows):
@@ -21,7 +23,7 @@ def stretcher_bond(num_rows: int, width: float) -> list[list[float]]:
 # assume there are three-quarters length cut bricks at the start of half of the rows, and usual
 # headers in the others.
 def flemish_bond(num_rows: int, width: float) -> list[list[float]]:
-    assert float_eq((width-1.25)%1.5, 0), "proper flemish bond needs width to be 1.25 greater than a multiple of 1.5"
+    assert (width-1.25)%1.5 == 0, "proper flemish bond needs width to be 1.25 greater than a multiple of 1.5"
 
     all_joints: list[list[float]] = []
     for row in range(num_rows):
@@ -42,7 +44,7 @@ def flemish_bond(num_rows: int, width: float) -> list[list[float]]:
 # once again, multiple ways to handle corners. I'll just do three-quarters bricks on the stretcher
 # rows.
 def cross_bond(num_rows: int, width: float) -> list[list[float]]:
-    assert width >= 1.5 and abs((width-1.5)%1.0) < 0.0001, "proper cross bond needs width to be 1.5 plus nonnegative integer"
+    assert width >= 1.5 and (width-1.5)%1.0 == 0, "proper cross bond needs width to be 1.5 plus nonnegative integer"
 
     all_joints: list[list[float]] = []
     for row in range(num_rows):

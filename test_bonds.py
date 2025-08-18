@@ -1,29 +1,38 @@
-from bonds import Brick, stretcher_bond, flemish_bond
+# just to test a few things quickly, this file not only tests the bond generation but also the
+# brickification.
+
+from bonds import stretcher_bond, flemish_bond, cross_bond
 
 def test_stretcher_bond() -> None:
-    bond = stretcher_bond(3, 220*4 + 120)
-    header_first_course = [
-        # start with header, all rest stretchers:
-        Brick(0.0, 110.0),
-        Brick(120.0, 330.0),
-        Brick(340.0, 550.0),
-        Brick(560.0, 770.0),
-        Brick(780.0, 990.0),
-    ]
-    header_last_course = [
-        Brick(0.0, 210.0),
-        Brick(220.0, 430.0),
-        Brick(440.0, 650.0),
-        Brick(660.0, 870.0),
-        # end with header, all rest stretchers:
-        Brick(880.0, 990.0),
-    ]
-        
+    bond = stretcher_bond(3, 4.5)
+    first_course = [0.5, 1.5, 2.5, 3.5]
+    second_course = [1.0, 2.0, 3.0, 4.0]
+
+    # there really shoul be exact float equality here, everything is just halves
     assert bond == [
-        header_first_course,
-        header_last_course,
-        header_first_course,
+        first_course,
+        second_course,
+        first_course,
     ]
 
 def test_flemish_bond() -> None:
-    bond = 
+    bond = flemish_bond(3, 5.75)
+    first_course = [0.5, 1.5, 2.0, 3.0, 3.5, 4.5, 5.0]
+    second_course = [0.75, 1.25, 2.25, 2.75, 3.75, 4.25, 5.25]
+
+    assert bond == [
+        first_course,
+        second_course,
+        first_course,
+    ]
+
+def test_cross_bond() -> None:
+    bond = cross_bond(3, 4.5)
+    first_course = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]
+    second_course = [0.75, 1.75, 2.75, 3.75]
+
+    assert bond == [
+        first_course,
+        second_course,
+        first_course,
+    ]
