@@ -1,5 +1,8 @@
+import minizinc
+
 from collections import defaultdict
 import collections.abc as tyc
+import time
 import typing as ty
 
 from dependency_graph import PlaceableBrick, PlaceableBrickList
@@ -58,6 +61,52 @@ def _topo_sort(placeable_bricks: set[PlaceableBrick]) -> list[PlaceableBrick]:
 def unstrided_placement_order(placeable_brick_list: PlaceableBrickList) -> PlacementOrder:
     """Place all the bricks in a single stride"""
     return [_topo_sort(set(placeable_brick_list))]
+
+def optimal_placement_order(placeable_brick_list: PlaceableBrickList) -> PlacementOrder:
+    """
+    Compute the optimal, multi-stride brick placement order using a discrete optimizer (effectively
+    a SAT solver)
+    """
+    # Adjacency matrix of dependencies. Set [i][j] if brick i depends on brick j
+    dependency_matrix: list[list[bool]] = [
+        [
+            i_placeable_brick in j_placeable_brick.dependencies
+            for j_placeable_brick in placeable_brick_list
+        ]
+        for i_placeable_brick in placeable_brick_list
+    ]
+    same_stride_matrix: list[list[bool]] = [
+        [
+            j_placeable_brick in i_placeable_brick.within_same_stride
+            for j_placeable_brick in placeable_brick_list
+        ]
+        for i_placeable_brick in placeable_brick_list
+    ]
+    model = minizinc.Model("strides.mzn")
+    solver = minizinc.Solver.lookup("gecode")
+    instance = minizinc.Instance(solver, model)
+    instance['n_bricks'] = len(placeable_brick_list)
+    instance['dependency'] = dependency_matrix
+    instance['within_stride'] = same_stride_matrix
+
+    print("Running solver...")
+    start_time = time.time()
+    result = instance.solve()
+    end_time = time.time()
+    print(f"Solver finished in {end_time - start_time:.2f} seconds with status {result.status}")
+
+    if result.status != minizinc.result.Status.OPTIMAL_SOLUTION:
+        raise ValueError(f"Could not find optimal placement order: {result.status}")
+
+    stride = result['stride']
+    # the stride array is an array of which stride number each brick is in. We want to invert this to a list of lists
+    placement_order: PlacementOrder = [[] for _ in range(max(stride) + 1)]
+    for i, stride_no in enumerate(stride):
+        placement_order[stride_no].append(placeable_brick_list[i])
+    # within each stride, we still need to do a topo sort to get a valid ordering
+    for i in range(len(placement_order)):
+        placement_order[i] = _topo_sort(set(placement_order[i]))
+    return placement_order
 
 def apply_placement_order(placement_order: PlacementOrder) -> tyc.Iterator[None]:
     """
