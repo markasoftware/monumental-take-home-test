@@ -1,7 +1,9 @@
+from datetime import timedelta
 import minizinc
 
 from collections import defaultdict
 import collections.abc as tyc
+from math import ceil
 import time
 import typing as ty
 
@@ -62,7 +64,7 @@ def unstrided_placement_order(placeable_brick_list: PlaceableBrickList) -> Place
     """Place all the bricks in a single stride"""
     return [_topo_sort(set(placeable_brick_list))]
 
-def optimal_placement_order(placeable_brick_list: PlaceableBrickList) -> PlacementOrder:
+def optimal_placement_order(placeable_brick_list: PlaceableBrickList, time_limit: timedelta) -> PlacementOrder:
     """
     Compute the optimal, multi-stride brick placement order using a discrete optimizer (effectively
     a SAT solver)
@@ -91,12 +93,14 @@ def optimal_placement_order(placeable_brick_list: PlaceableBrickList) -> Placeme
 
     print("Running solver...")
     start_time = time.time()
-    result = instance.solve()
+    result = instance.solve(processes=12, time_limit=time_limit)
     end_time = time.time()
     print(f"Solver finished in {end_time - start_time:.2f} seconds with status {result.status}")
 
     if result.status != minizinc.result.Status.OPTIMAL_SOLUTION:
-        raise ValueError(f"Could not find optimal placement order: {result.status}")
+        print("WARNING: Solver did not find an optimal solution in time, using best found solution")
+    if result.status != minizinc.result.Status.SATISFIED and result.status != minizinc.result.Status.OPTIMAL_SOLUTION:
+        raise ValueError("Solver failed to find any solution in time, increase the time limit!")
 
     stride = result['stride']
     # the stride array is an array of which stride number each brick is in. We want to invert this to a list of lists
@@ -106,6 +110,7 @@ def optimal_placement_order(placeable_brick_list: PlaceableBrickList) -> Placeme
     # within each stride, we still need to do a topo sort to get a valid ordering
     for i in range(len(placement_order)):
         placement_order[i] = _topo_sort(set(placement_order[i]))
+    print(f"Number of strides: {len(placement_order)}")
     return placement_order
 
 def apply_placement_order(placement_order: PlacementOrder) -> tyc.Iterator[None]:

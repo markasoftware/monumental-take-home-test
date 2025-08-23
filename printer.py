@@ -25,10 +25,7 @@ def colorize(text: str, color_id: int) -> str:
         39,   # sky blue
     ]
 
-    if not (0 <= color_id <= len(palette)):
-        raise ValueError("digit must be an integer from 0 to 9")
-
-    color_code = palette[color_id]
+    color_code = (palette[color_id % len(palette)] + 10 * (color_id // len(palette))) % 256
     start = f"\x1b[38;5;{color_code}m"
     end = "\x1b[0m"
     return f"{start}{text}{end}"

@@ -1,4 +1,4 @@
-from bonds import flemish_bond, stretcher_bond
+from bonds import flemish_bond, stretcher_bond, cross_bond
 from brickifier import brickify
 from dependency_graph import brick_list_to_placeable_brick_list
 from placer import unstrided_placement_order, optimal_placement_order
