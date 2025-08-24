@@ -2,7 +2,10 @@
 # simplest way: A list (one for each row, first row being the bottom) of lists of head joint
 # positions (left being 0). All these units are "relative" units as described in the readme.
 
-from utils import float_eq
+import minizinc
+
+from datetime import timedelta
+import time
 
 def stretcher_bond(num_rows: int, width: float) -> list[list[float]]:
     # exact equality is more or less ok here because 0.5 can be represented exactly as a float.
@@ -60,3 +63,23 @@ def cross_bond(num_rows: int, width: float) -> list[list[float]]:
             i += increment
         all_joints.append(row_joints)
     return all_joints
+
+def wild_bond(num_rows: int, width: float) -> list[list[float]]:
+    assert width % 0.25 == 0 and width >= 0.5, "proper wild bond width must be a multiple of 0.25 and at least 0.5"
+
+    model = minizinc.Model("wild.mzn")
+    solver = minizinc.Solver.lookup("cp")
+    instance = minizinc.Instance(solver, model)
+    instance['n_courses'] = num_rows
+    instance['width_in_quarters'] = int(width * 4)
+
+    print("Running wild bond solver...")
+    start_time = time.time()
+    # TODO processes and time_limit as parameters
+    result = instance.solve()
+    end_time = time.time()
+    print(f"Wild bond solved in {end_time - start_time:.2f} seconds with status {result.status}")
+    if result.status != minizinc.result.Status.SATISFIED:
+        raise ValueError("Wild bond solver failed to find a solution!")
+
+    return [[quarters / 4.0 + 0.25 for quarters, has_joint in enumerate(course) if has_joint] for course in result['head_joints']]

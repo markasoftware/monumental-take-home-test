@@ -85,6 +85,8 @@ def optimal_placement_order(placeable_brick_list: PlaceableBrickList, time_limit
         for i_placeable_brick in placeable_brick_list
     ]
     model = minizinc.Model("strides.mzn")
+    # solver = minizinc.Solver.lookup("gecode")
+    # let's try a different one:
     solver = minizinc.Solver.lookup("gecode")
     instance = minizinc.Instance(solver, model)
     instance['n_bricks'] = len(placeable_brick_list)
@@ -93,7 +95,7 @@ def optimal_placement_order(placeable_brick_list: PlaceableBrickList, time_limit
 
     print("Running solver...")
     start_time = time.time()
-    result = instance.solve(processes=12, time_limit=time_limit)
+    result = instance.solve(processes=12, time_limit=time_limit, statistics=True)
     end_time = time.time()
     print(f"Solver finished in {end_time - start_time:.2f} seconds with status {result.status}")
 

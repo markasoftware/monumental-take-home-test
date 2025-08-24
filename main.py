@@ -1,11 +1,11 @@
 import argparse
 from datetime import timedelta
 
-from bonds import flemish_bond, stretcher_bond, cross_bond
+from bonds import flemish_bond, stretcher_bond, cross_bond, wild_bond
 from brickifier import brickify
 from dependency_graph import brick_list_to_placeable_brick_list
-from placer import optimal_placement_order
-from printer import interactive_print_placed_bricks
+from placer import apply_placement_order, optimal_placement_order
+from printer import interactive_print_placed_bricks, print_bricks
 
 
 def main():
@@ -14,7 +14,7 @@ def main():
         '--bond',
         type=str,
         required=True,
-        choices=['stretcher', 'flemish', 'cross'],
+        choices=['stretcher', 'flemish', 'cross', 'wild'],
         help='Type of bond pattern.'
     )
     parser.add_argument('--num-rows', type=int, required=True, help='Number of rows of bricks.')
@@ -26,6 +26,11 @@ def main():
     parser.add_argument('--stride-height', type=float, default=1300.0, help='Stride height for placement.')
     parser.add_argument('--stride-width', type=int, default=800, help='Stride width for placement.')
     parser.add_argument('--time-limit', type=int, default=10, help='Time limit in seconds for optimal placement order computation.')
+    parser.add_argument(
+        '--instant',
+        action='store_true',
+        help='Instantly place all bricks and print the final configuration.'
+    )
 
     args = parser.parse_args()
 
@@ -37,11 +42,14 @@ def main():
             width = 1.5 * 3 + 1.25  # 5.75, satisfies (width-1.25)%1.5 == 0
         elif args.bond == 'cross':
             width = 1.5 + 2.0  # 3.5, satisfies (width-1.5)%1.0 == 0
+        elif args.bond == 'wild':
+            width = 4.0  # multiple of 0.25
 
     bond_fn_map = {
         'stretcher': stretcher_bond,
         'flemish': flemish_bond,
         'cross': cross_bond,
+        'wild': wild_bond,
     }
     bond_fn = bond_fn_map[args.bond]
     bond = bond_fn(args.num_rows, width)
@@ -50,7 +58,12 @@ def main():
     placeable_bricks = brick_list_to_placeable_brick_list(args.stride_height, args.stride_width, bricks)
     placement_order = optimal_placement_order(placeable_bricks, time_limit=timedelta(seconds=args.time_limit))
 
-    interactive_print_placed_bricks(placeable_bricks, placement_order)
+    if args.instant:
+        for _ in apply_placement_order(placement_order):
+            pass
+        print_bricks(placeable_bricks)
+    else:
+        interactive_print_placed_bricks(placeable_bricks, placement_order)
 
 
 if __name__ == "__main__":

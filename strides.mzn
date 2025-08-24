@@ -1,7 +1,5 @@
 % Minizinc to optimize assignment of bricks to strides
 
-% include "globals.mzn";
-
 %%%% PARAMETERS %%%%
 
 int: n_bricks; % The total number of bricks to be placed.
@@ -32,9 +30,6 @@ constraint forall(i, j in BRICKS where dependency[i, j]) (
 
 % Ensure all bricks in a stride are close enough to be in a stride
 constraint forall(i, j in BRICKS where i < j) (
-    if stride[i] == stride[j] then
-        within_stride[i, j]
-    else
-        true
-    endif
+    % arrow -> is implication
+    (stride[i] == stride[j]) -> within_stride[i, j]
 );
