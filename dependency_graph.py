@@ -8,8 +8,8 @@ from brickifier import Brick, BrickList
 @dataclass
 class PlaceableBrick:
     brick: Brick
-    dependencies: list[PlaceableBrick]
-    within_same_stride: list[PlaceableBrick]
+    dependencies: set[PlaceableBrick]
+    within_same_stride: set[PlaceableBrick]
     # if int, indicates which stride the brick was placed in. If None, the brick hasn't been placed
     # yet.
     placed_in_stride: int | None = None
@@ -29,16 +29,16 @@ def brick_list_to_placeable_brick_list(stride_height: float, stride_width: int, 
 
     # TODO explain how it can be made faster
 
-    placeable_brick_list = [PlaceableBrick(brick, [], []) for brick in brick_list]
+    placeable_brick_list = [PlaceableBrick(brick, set(), set()) for brick in brick_list]
     for placeable_brick in placeable_brick_list:
         # find dependencies
         brick = placeable_brick.brick
         for other_placeable_brick in placeable_brick_list:
             other_brick = other_placeable_brick.brick
             if brick.course_no - 1 == other_brick.course_no and do_bricks_overlap(brick, other_brick):
-                placeable_brick.dependencies.append(other_placeable_brick)
+                placeable_brick.dependencies.add(other_placeable_brick)
             if are_bricks_in_same_stride(stride_height, stride_width, brick, other_brick):
-                placeable_brick.within_same_stride.append(other_placeable_brick)
+                placeable_brick.within_same_stride.add(other_placeable_brick)
 
     return placeable_brick_list
 

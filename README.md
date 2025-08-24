@@ -44,19 +44,25 @@ description (2300x2000mm stretcher bond):
 uv run main.py --num-courses 32 --width 10.5
 ```
 
-(as described below, width is measured in relative units).
+(as described below, width is measured in relative units; 10.5 here means 10 stretchers and 1 header).
 
 ## Unit systems
 
 For different purposes, we have two different unit systems: "logical" units which are decimals
 relative to 220mm (one brick + one head joint), and then "real" units which are just mm.
 
-You can't exactly convert "logical" units to "real" units, because logical units include the head joint following the brick, while real units are just for the brick itself. To convert logical to real:
+You can't convert "logical" units to "real" units without more context, because of the head joints.
+In some cases you will want to convert the real units including the head joint following the brick,
+and sometimes not. To compute the width of a single brick (not including the trailing head joint):
 
-real = logical * 220 - 10
+```
+real_brick_width = logical_brick_width * 220 - 10
+```
 
 So a 1.0 logical length brick (stretcher) has real length 210mm, a 0.5 logical length brick (header)
 has real length 100mm, and a quarter brick has real length 45mm.
+
+And of course, to convert logical units to real units including trailing head joint, just add 10mm.
 
 We generate the bonds in relative units. We also print bricks using their relative units, because
 generating ascii art in "real" units would require a very wide terminal (for a head joint to be one

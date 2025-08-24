@@ -75,7 +75,6 @@ def wild_bond(num_rows: int, width: float) -> list[list[float]]:
 
     print("Running wild bond solver...")
     start_time = time.time()
-    # TODO processes and time_limit as parameters
     result = instance.solve()
     end_time = time.time()
     print(f"Wild bond solved in {end_time - start_time:.2f} seconds with status {result.status}")

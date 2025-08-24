@@ -86,8 +86,6 @@ def optimal_placement_order(placeable_brick_list: PlaceableBrickList, time_limit
         for i_placeable_brick in placeable_brick_list
     ]
     model = minizinc.Model("strides.mzn")
-    # solver = minizinc.Solver.lookup("gecode")
-    # let's try a different one:
     solver = minizinc.Solver.lookup("gecode")
     instance = minizinc.Instance(solver, model)
     instance['n_bricks'] = len(placeable_brick_list)
@@ -98,14 +96,14 @@ def optimal_placement_order(placeable_brick_list: PlaceableBrickList, time_limit
     start_time = time.time()
     # https://stackoverflow.com/a/55423170/1233320
     num_cpus = len(os.sched_getaffinity(0))
-    result = instance.solve(processes=12, time_limit=time_limit, statistics=True)
+    result = instance.solve(processes=num_cpus, time_limit=time_limit)
     end_time = time.time()
     print(f"Solver finished in {end_time - start_time:.2f} seconds with status {result.status}")
 
-    if result.status != minizinc.result.Status.OPTIMAL_SOLUTION:
+    if result.status == minizinc.result.Status.SATISFIED:
         print("WARNING: Solver did not find an optimal solution in time, using best found solution")
     if result.status != minizinc.result.Status.SATISFIED and result.status != minizinc.result.Status.OPTIMAL_SOLUTION:
-        raise ValueError("Solver failed to find any solution in time, increase the time limit!")
+        raise ValueError("Solver failed to find a solution, increase the --time-limit!")
 
     stride = result['stride']
     # the stride array is an array of which stride number each brick is in. We want to invert this to a list of lists
