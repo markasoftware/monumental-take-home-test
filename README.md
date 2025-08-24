@@ -21,11 +21,11 @@ actually saving time at the end of the day.
 
 Solving original problem as stated (stretcher bond, 2300x2000mm):
 
-[original-problem.webm](https://github.com/user-attachments/assets/772801c4-a33d-4f66-ad9c-842ec167eee8)
+[original-problem.webm](https://github.com/user-attachments/assets/b8f361f9-427e-4102-b27a-59d23b328ba3)
 
 Wild bond:
 
-[wild-bond.webm](https://github.com/user-attachments/assets/aedc904a-ddc2-4505-9013-b94ab5c99168)
+[wild-bond.webm](https://github.com/user-attachments/assets/83aac485-0796-4950-aaca-e32bee758074)
 
 ## Installation & Running
 
