@@ -19,6 +19,14 @@ actually saving time at the end of the day.
 
 ## Demo videos
 
+Solving original problem as stated (stretcher bond, 2300x2000mm):
+
+[original-problem.webm](https://github.com/user-attachments/assets/772801c4-a33d-4f66-ad9c-842ec167eee8)
+
+Wild bond:
+
+[wild-bond.webm](https://github.com/user-attachments/assets/33a8f49a-bdda-40dc-b337-f3e0feb82865)
+
 ## Installation & Running
 
 ### Debian/Ubuntu/other `apt` distros
