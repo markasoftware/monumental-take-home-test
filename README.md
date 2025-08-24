@@ -17,34 +17,53 @@ enough to find a pretty good, nontrivial solution. In my opinion, it's better to
 solution rather than to go fast; if it takes an extra few seconds to save multiple strides, you're
 actually saving time at the end of the day.
 
-## Installation/running
+## Demo videos
 
-I used Python so that the interviewers will have an easy time reading my code, and because Python
-has a good library for working with Minizinc, which I use as a frontend to constraint solvers.
+## Installation & Running
 
-The `main.py` file is the entry point. The `minizinc` python package is the only dependency. I'll
-describe using `uv`, but you can install `minizinc` some other way if you'd like.
+### Debian/Ubuntu/other `apt` distros
 
-I recommend running with the `uv` package manager. Learn how to install it at
-https://docs.astral.sh/uv (most Linux distros have `uv` in their repos these days, so eg `apt
-install uv`)
+From a Bash shell on the latest LTS Ubuntu or Debian (I tested in a `ubuntu:latest` docker container):
 
-Once you have `uv` installed:
+```bash
+apt-get install -y minizinc python3 python3-pip python3-venv git
+git clone https://github.com/markasoftware/monumental-take-home-test
+cd monumental-take-home-test
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -g minizinc
+```
+
+Then you can run `python3 main.py <OPTIONS>` to run my submission.
+
+To run the original problem as stated (2300x2000mm):
 
 ```
-uv run main.py <OPTIONS>
+python3 main.py --num-courses 32 --width 10.5
 ```
+
+### NixOS
+
+After cloning and entering the cloned repo:
+
+```
+nix-shell -p python312 minizinc uv --command 'uv run main.py <OPTIONS>'
+```
+
+And like in the Ubuntu case, run with `--num-courses 32 --width 10.5` to run the problem as stated (2300x2000mm).
+
+### Elsewhere
+
+1. Install Python 3.12+ (older versions *might* work too)
+2. Install Minizinc. It's in the package managers for most repos.
+3. Install the `minizinc` Python package.
+4. Run `main.py` under Python, passing extra command line arguments.
+
+If you want, install the `uv` package manager, and then you can just do `uv run main.py` and skip step (3) above.
 
 Use `--help` to learn about all the options.
 
-The default options use a smaller wall size so that it goes fast. To run according to the problem
-description (2300x2000mm stretcher bond):
-
-```
-uv run main.py --num-courses 32 --width 10.5
-```
-
-(as described below, width is measured in relative units; 10.5 here means 10 stretchers and 1 header).
+And like in the Ubuntu case, run `main.py` with `--num-courses 32 --width 10.5` to run the problem as stated (2300x2000mm).
 
 ## Unit systems
 
