@@ -25,7 +25,7 @@ Solving original problem as stated (stretcher bond, 2300x2000mm):
 
 Wild bond:
 
-[wild-bond.webm](https://github.com/user-attachments/assets/33a8f49a-bdda-40dc-b337-f3e0feb82865)
+[wild-bond.webm](https://github.com/user-attachments/assets/aedc904a-ddc2-4505-9013-b94ab5c99168)
 
 ## Installation & Running
 
