@@ -13,23 +13,23 @@ def main():
     parser.add_argument(
         '--bond',
         type=str,
-        required=True,
+        default='stretcher',
         choices=['stretcher', 'flemish', 'cross', 'wild'],
-        help='Type of bond pattern.'
+        help='Bond pattern',
     )
-    parser.add_argument('--num-rows', type=int, required=True, help='Number of rows of bricks.')
+    parser.add_argument('--num-courses', type=int, default=10, help='Number of courses (rows).')
     parser.add_argument(
         '--width',
         type=float,
-        help='Width of the wall. If not provided, a default will be used based on the bond type.'
+        help='Width of the wall in stretchers (relative units). If not provided, a default will be used based on the bond type.'
     )
-    parser.add_argument('--stride-height', type=float, default=1300.0, help='Stride height for placement.')
-    parser.add_argument('--stride-width', type=int, default=800, help='Stride width for placement.')
-    parser.add_argument('--time-limit', type=int, default=10, help='Time limit in seconds for optimal placement order computation.')
+    parser.add_argument('--stride-height', type=float, default=1300.0, help='Stride height in mm')
+    parser.add_argument('--stride-width', type=int, default=800, help='Stride width in mm')
+    parser.add_argument('--time-limit', type=int, default=20, help='Time limit in seconds for optimal placement order computation.')
     parser.add_argument(
         '--instant',
         action='store_true',
-        help='Instantly place all bricks and print the final configuration.'
+        help='Print the final colors instead of placing bricks one-by-one with ENTER',
     )
 
     args = parser.parse_args()
@@ -37,13 +37,13 @@ def main():
     width = args.width
     if width is None:
         if args.bond == 'stretcher':
-            width = 3.5  # multiple of 0.5
+            width = 5.0  # multiple of 0.5
         elif args.bond == 'flemish':
             width = 1.5 * 3 + 1.25  # 5.75, satisfies (width-1.25)%1.5 == 0
         elif args.bond == 'cross':
-            width = 1.5 + 2.0  # 3.5, satisfies (width-1.5)%1.0 == 0
+            width = 1.5 + 4.0  # 5.5, satisfies (width-1.5)%1.0 == 0
         elif args.bond == 'wild':
-            width = 4.0  # multiple of 0.25
+            width = 5.0  # multiple of 0.25
 
     bond_fn_map = {
         'stretcher': stretcher_bond,
@@ -52,7 +52,7 @@ def main():
         'wild': wild_bond,
     }
     bond_fn = bond_fn_map[args.bond]
-    bond = bond_fn(args.num_rows, width)
+    bond = bond_fn(args.num_courses, width)
 
     bricks = brickify(bond, width)
     placeable_bricks = brick_list_to_placeable_brick_list(args.stride_height, args.stride_width, bricks)

@@ -1,0 +1,9 @@
+[project]
+name = "monumental-take-home-test"
+version = "0.1.0"
+description = "Monumental brick placement take-home test (forward deployed)"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "minizinc>=0.10.0",
+]

@@ -1,5 +1,6 @@
 from datetime import timedelta
 import minizinc
+import os
 
 from collections import defaultdict
 import collections.abc as tyc
@@ -95,6 +96,8 @@ def optimal_placement_order(placeable_brick_list: PlaceableBrickList, time_limit
 
     print("Running solver...")
     start_time = time.time()
+    # https://stackoverflow.com/a/55423170/1233320
+    num_cpus = len(os.sched_getaffinity(0))
     result = instance.solve(processes=12, time_limit=time_limit, statistics=True)
     end_time = time.time()
     print(f"Solver finished in {end_time - start_time:.2f} seconds with status {result.status}")
@@ -109,6 +112,8 @@ def optimal_placement_order(placeable_brick_list: PlaceableBrickList, time_limit
     placement_order: PlacementOrder = [[] for _ in range(max(stride) + 1)]
     for i, stride_no in enumerate(stride):
         placement_order[stride_no].append(placeable_brick_list[i])
+    assert placement_order[0] == [], "minizinc is 1-indexed so first placement order should be empty"
+    placement_order = placement_order[1:]
     # within each stride, we still need to do a topo sort to get a valid ordering
     for i in range(len(placement_order)):
         placement_order[i] = _topo_sort(set(placement_order[i]))
