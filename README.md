@@ -39,7 +39,7 @@ git clone https://github.com/markasoftware/monumental-take-home-test
 cd monumental-take-home-test
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -g minizinc
+pip install minizinc
 ```
 
 Then you can run `python3 main.py <OPTIONS>` to run my submission.
